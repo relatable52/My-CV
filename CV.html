@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang = "en">
+    <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet">
+        <meta charset="utf-8" />
+    </head>
+    <style>
+        body{
+            width: 0px;
+            height: 0px;
+            margin: 0;
+            padding: 0;
+        }
+        canvas{
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: -1; 
+        }
+        /* width */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        /* Track */
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+            border-radius: 5px;
+        }
+        
+        /* Handle */
+        ::-webkit-scrollbar-thumb {
+            background: #888; 
+            border-radius: 5px;
+        }
+
+        /* Handle on hover */
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555; 
+        }
+        .content{
+            display: inline-block;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 5px;
+            position: relative;
+            top: 7vh;
+            left: 5vw;
+            width: 50vw;
+            height: 80vh;
+            font-family: 'Merriweather', serif;
+            overflow-y: scroll;
+        }
+    </style>
+    <body>
+        <canvas onmousemove="getMouse(event)" onmousedown="bubonclick()" id="bg" width="200px" height="200px" style="border: 0px">
+            Your browser does not support the canvas element.
+        </canvas>
+        <script>
+            var back = document.getElementById("bg");
+            var ctx = back.getContext("2d");
+            ctx.canvas.width = window.innerWidth;
+            ctx.canvas.height = window.innerHeight;
+            
+            var id = setInterval(frame, 1);
+            var mouseX;
+            var mouseY;
+            var r=50, r0=10, r1 = 25, v=20, dt = 0.1, k=0.05, g=1, p=1;
+            var n=30;
+            var addbub = false;
+            var bubs = [];
+
+            class Bubble{
+                constructor(rem){
+                    if(!rem){
+                        this.posx = Math.random()*back.width*p+(1-p)*back.width;
+                        this.posy = Math.random()*(back.height-10);
+                        this.radius = Math.random()*(r-r0)+r0;
+                    }else{
+                        this.posx = mouseX;
+                        this.posy = mouseY;
+                        this.radius = Math.random()*(r1-r0)+r0;
+                    }
+                    this.re = rem;
+                    this.remove = false;
+                    let angle = Math.random()*Math.PI*2;
+                    let speed = v*Math.random();
+                    this.velx = speed*(Math.cos(angle));
+                    this.vely = speed*(Math.sin(angle));
+                }
+
+                disp(){
+                    ctx.beginPath();
+                    ctx.arc(this.posx, this.posy, this.radius, 0, 2*Math.PI);
+                    ctx.stroke();
+                }
+
+                update(){
+                    this.posx += this.velx*dt;
+                    this.posy += this.vely*dt;
+                    this.velx -= this.velx*k*this.radius*0.1*dt;
+                    this.vely -= this.vely*k*this.radius*0.1*dt+g*dt;
+                    if((this.posx>back.width-10) || (this.posx<10)){
+                        if(this.re){
+                            this.remove = true;
+                        }
+                        this.posx = Math.random()*back.width*p+(1-p)*back.widht;
+                        this.posy = back.height-10;
+                        let angle = -Math.random()*Math.PI;
+                        let speed = v*Math.random();
+                        this.velx = speed*(Math.cos(angle));
+                        this.vely = speed*(Math.sin(angle));
+                        this.radius = Math.random()*(r-r0)+r0;
+                    }
+                    if(this.posy<10){
+                        if(this.re){
+                            this.remove = true;
+                        }
+                        this.posx = Math.random()*back.width*p+(1-p)*back.width;
+                        this.posy = back.height-10;
+                        let angle = -Math.random()*Math.PI;
+                        let speed = v*Math.random();
+                        this.velx = speed*(Math.cos(angle));
+                        this.vely = speed*(Math.sin(angle));
+                        this.radius = Math.random()*(r-r0)+r0;
+                    }
+                }
+            }
+
+
+            for(i=0; i<n; i++){
+                bubs.push(new Bubble(false));
+            }
+
+            function frame() {
+                ctx.fillStyle = "#00eff7";
+                ctx.fillRect(0, 0, back.width, back.height);
+                ctx.fillStyle = "#488ebd";
+                ctx.strokeStyle = "#488ebd"
+                ctx.font = "20px Arial";
+                ctx.fillText("Click để thổi bong bóng :))", back.width*0.8, back.height*0.95);
+                ctx.lineWidth = 2;
+                
+                for(i=0; i<bubs.length; i++){
+                    bubs[i].disp();
+                    bubs[i].update();
+                }
+
+                for(i=0; i<bubs.length; i++){
+                    if(bubs[i].remove){
+                        bubs.splice(i,1);
+                    }
+                }
+
+                if(addbub){
+                    bubs.push(new Bubble(true));
+                    addbub = false;
+                }
+            }
+
+            function getMouse(event) {
+                mouseX = event.offsetX;
+                mouseY = event.offsetY; 
+            }
+
+            function bubonclick(){
+                addbub = true;
+            }
+
+            window.addEventListener('resize', resizeCanvas, false);
+            function resizeCanvas() {
+                back.width = window.innerWidth;
+                back.height = window.innerHeight;
+            }
+            resizeCanvas();
+        </script>
+        <div class="content">
+            <h1>
+                Trần Dương Chính
+            </h1>
+            <h4>
+                Sinh viên ngành Khoa học Dữ liệu và Trí tuệ Nhân tạo, Đại học Bách khoa Hà Nội
+            </h4>
+            <hr>
+            <h2>Tóm tắt</h2>
+            <p>
+               Mình tên là Chính. Mình yêu thích khoa học và kĩ thuật. Mình mong muốn được làm một công việc cho phép mình ứng dụng những kiến thức của khoa học vào giúp ích cho cuộc sống. 
+               Mình là người làm việc hăng say và nghiêm túc, đặc biệt luôn chú trọng đến chất lượng thành quả của công việc. Mình cũng khá là hòa đồng và thân thiện.
+            </p>
+            <h2>Học vấn</h2>
+            <p>
+                <ul>
+                    <li><strong>2018 - 2021</strong>: Học sinh chuyên Lý K36 trường THPT Chuyên Hùng Vương, Phú Thọ.</li>
+                    <li><strong>2021 - hiện tại</strong>: Sinh viên K66 ngành Khoa học Dữ liệu và Trí tuệ Nhân tạo, Đại học Bách khoa Hà Nội.</li>
+                </ul>
+            </p>
+            <h2>Kĩ năng</h2>
+            <p>
+                <ul>
+                    <li><strong>Google</strong>: <i>"Không có cái gì là mình không biết, chỉ có cái mình chưa biết."</i></li>
+                    <li><strong>Java, JavaScript, C/C++, Python</strong>: Nắm vững cơ bản.</li>
+                    <li><strong>Latex</strong>: Tự đánh giá là khá thành thạo.</li>
+                    <li><strong>HTML, CSS</strong>: Tối thiểu.</li>
+                    <li><strong>Kĩ năng thiết kế</strong>: Biết sử dụng một số phần mềm thiết kế như Adobe Illustrator, Canva, Inkscape, Shotcut. </li>
+                    <li><strong>Tin học văn phòng</strong>: Biết sử dụng Word, Excel, PowerPoint ở mức cơ bản.</li>
+                    <li><strong>Tiếng Anh</strong>: Tốt.</li>
+                    <li><strong>Một số kĩ năng khác</strong>: Processing, p5.js, Manim, Matplotlib, Arduino cùng với kiến thức về điện, điện tử.</li>
+                </ul>
+            </p>
+            <h2>Một số project</h2>
+            <p>
+                <ul>
+                    <li><a href="https://github.com/relatable52/relatable52.github.io">https://github.com/relatable52/relatable52.github.io</a></li>
+                    <li><a href="https://github.com/relatable52/stringportrait">https://github.com/relatable52/stringportrait</a></li>
+                    <li><a href="https://github.com/relatable52/resistancecalculator">https://github.com/relatable52/resistancecalculator</a></li>
+                    <li>Và một số project khác bao gồm cả liên quan đến CNTT và không liên quan đến CNTT.</li>
+                </ul>
+            </p>
+            <hr>
+            <h4>
+                Liên hệ
+                <ul>
+                    <li>Email: <a href="mailto:duongchinh29062003@gmail.com">duongchinh29062003@gmail.com</a></li>
+                    <li>Facebook: <a href="https://www.facebook.com/profile.php?id=100027499011118">Trần Dương Chính</a></li>
+                    <li>Website: <a href="https://relatable52.github.io/">relatable52.github.io</a></li>
+                    <li>SĐT: 0878803167</li>
+                </ul>
+            </h4>
+        </div>
+    </body>
+</html>
